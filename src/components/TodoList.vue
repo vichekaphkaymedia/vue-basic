@@ -3,22 +3,16 @@
         <div class="container">
             <div class="card mt-5">
                 <div class="card-header">
-                Add New Todo
+                All Todos
                 </div>
                 <div class="card-body">
-                <form>
-                    <div class="form-group">
-                    <label for="name"></label>
-                    <input type="text" id="name" class="form-control">
-                    </div>
-                </form>
+                <NewTodo @add-todo="addTodo"/>
                 <br>
                 <ul class="list-group">
                     <todo 
-                    :todos="todos" 
-                    @on-delete="deleteTodo"
-                    @on-toggle="toggleToDo"
-                    @on-edit="editTodo($event)"
+                    :todos="todos"
+                    @toggle="toggleToDo"
+                    @delete="deleteTodo"
                     />
                 </ul>
                 </div>
@@ -28,36 +22,53 @@
 </template>
 
 <script>
+
 import Todo from "./Todo";
+import NewTodo from './NewTodo.vue'
+import _ from 'lodash';
+import axios from 'axios'
+
 export default {
-  name: "TodoList",
-  components: {
-      Todo
-  },
-  data() {
-    return {
-      todos: [
-        {name: "Todo 001",completed: false},
-        {name: "Todo 002",completed: false},
-        {name: "Todo 003",completed: false},
-        {name: "Todo 004",completed: false}
-      ]
+    name: "TodoList",
+    components: {
+        Todo,
+        NewTodo
+    },
+    data() {
+        return {
+            todos: []
+        }
+    },
+    mounted(){
+        axios.get('./data/todos.json')
+        .then(res => {
+            // this.todos = todo.data
+            this.todos = res.data.map((todo,index) => {
+                todo.id = ++index
+                return todo
+            })
+        })
+        .catch(err => {
+            console.log(err)
+        })
+    },
+    methods: {
+        addTodo(name){
+            this.todos.push({name: name, completed: false})
+        },
+        toggleToDo(todo){
+            todo.completed = !todo.completed
+        },
+        editTodo(id,field,text){
+            const todoIndex = _.findIndex(this.todos, {
+                id: id
+            });
+            this.appointments[todoIndex][field] = text;
+        },
+        deleteTodo(todo){
+            this.todos = _.without(this.todos,todo)
+        }
     }
-  },
-  methods: {
-    addTodo(name){
-      this.todos.push({name: name, completed: false})
-    },
-    toggleToDo(todo){
-      todo.completed = !todo.completed
-    },
-    editTodo(newTodoString){
-        this.todos = newTodoString
-    },
-    deleteTodo(deleteTodo){
-      this.todos = this.todos.filter(todo => todo.name !== deleteTodo)
-    }
-  }
 }
 </script>
 
