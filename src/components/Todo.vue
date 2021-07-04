@@ -28,16 +28,6 @@
 <script>
   export default {
     props: ['todos'],
-    data(){
-        return {
-            isEditing: false,
-            newTodoString: '',
-            completed: false
-        }
-    },
-    methods: {
-       
-    }
 }
 </script>
 
